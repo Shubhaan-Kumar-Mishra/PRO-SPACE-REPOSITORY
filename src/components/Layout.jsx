@@ -27,10 +27,11 @@ export default function Layout({ children, session, currentView, setCurrentView 
 
       <Sidebar currentView={currentView} setCurrentView={setCurrentView} />
       
+      {/* Main Content: Responsive padding for mobile top bar (56px) + bottom tab bar (64px) */}
       <main 
         key={currentView}
         ref={mainRef}
-        className="flex-1 overflow-y-auto px-8 lg:px-12 pt-12 pb-12 relative z-10"
+        className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-12 pt-[72px] lg:pt-12 pb-24 lg:pb-12 relative z-10"
       >
         <div className="max-w-6xl mx-auto">
           {children}

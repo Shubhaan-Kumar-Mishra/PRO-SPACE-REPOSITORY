@@ -68,25 +68,25 @@ export default function Projects({ onProjectSelect }) {
   }
 
   return (
-    <div className="space-y-8 animate-in">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="space-y-6 sm:space-y-8 animate-in">
+      <header className="flex flex-col gap-4">
         <div>
-          <p className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-1">Portfolio</p>
-          <h1 className="text-3xl font-bold tracking-tight">Active Projects</h1>
+          <p className="text-[10px] sm:text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-1">Portfolio</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Active Projects</h1>
         </div>
-        <div className="flex gap-3">
-          <div className="relative group">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative group flex-1 sm:flex-none">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
             <input
               type="text"
               placeholder="Filter workspace..."
-              className="bg-white/[0.04] border border-white/[0.06] rounded-xl py-2.5 pl-10 pr-4 text-[13px] focus:outline-none focus:border-white/15 w-56 transition-all"
+              className="bg-white/[0.04] border border-white/[0.06] rounded-xl py-2.5 pl-10 pr-4 text-[13px] focus:outline-none focus:border-white/15 w-full sm:w-56 transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <button
-            className="btn-primary"
+            className="btn-primary text-[12px] sm:text-[13px] self-start"
             onClick={() => setIsModalOpen(true)}
           >
             <Plus className="w-4 h-4" />
@@ -96,13 +96,13 @@ export default function Projects({ onProjectSelect }) {
       </header>
 
       {filtered.length === 0 ? (
-        <div className="glass-card p-16 text-center border-dashed">
+        <div className="glass-card p-8 sm:p-16 text-center border-dashed">
           <Kanban className="w-10 h-10 text-white/10 mx-auto mb-4" />
-          <p className="text-white/30 text-[15px] font-bold mb-2">
+          <p className="text-white/30 text-[14px] sm:text-[15px] font-bold mb-2">
             {searchQuery ? 'Search yield 0 RESULTS' : 'INITIATE FIRST STAGE'}
           </p>
-          <p className="text-white/10 text-[12px] mb-6 font-medium uppercase tracking-[0.1em]">No project data found in current cluster</p>
-          <button className="btn-primary mx-auto" onClick={() => setIsModalOpen(true)}>
+          <p className="text-white/10 text-[11px] sm:text-[12px] mb-6 font-medium uppercase tracking-[0.1em]">No project data found</p>
+          <button className="btn-primary mx-auto text-[12px] sm:text-[13px]" onClick={() => setIsModalOpen(true)}>
             <Plus className="w-4 h-4" /> Start Build
           </button>
         </div>
@@ -159,9 +159,9 @@ export default function Projects({ onProjectSelect }) {
 
       {/* New Project Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
-          <div className="glass-card w-full max-w-md p-8 relative z-10 border-white/[0.08] shadow-2xl animate-fade-in-up">
+          <div className="glass-card w-full max-w-md p-5 sm:p-8 relative z-10 border-white/[0.08] shadow-2xl animate-fade-in-up mx-2">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Launch Project</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-white/20 hover:text-white transition-colors">

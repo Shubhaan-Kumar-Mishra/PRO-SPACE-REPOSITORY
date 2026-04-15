@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { 
-  TrendingUp, CheckCircle, Heart, Bell, Plus, ArrowUpRight, 
-  Clock, Activity, Sparkles, Search, Zap, Calendar, 
-  ChevronRight, MoreHorizontal, MousePointer2, Loader2, Target, X, Trash2, Kanban
+  TrendingUp, CheckCircle, Heart, Plus, ArrowUpRight, 
+  Activity, Sparkles, Zap, 
+  ChevronRight, Loader2, X, Trash2, Kanban
 } from 'lucide-react'
 import anime from 'animejs'
 import { supabase } from '../lib/supabase'
@@ -12,7 +12,6 @@ export default function Dashboard({ setCurrentView }) {
     metrics: [],
     activities: [],
     projects: [],
-    agenda: [],
     workload: [],
     throughput: [],
     config: {}
@@ -37,21 +36,17 @@ export default function Dashboard({ setCurrentView }) {
         supabase.from('system_config').select('*')
       ])
 
-      // 1. Config Map
       const config = configRes?.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {}) || {}
-
-      // 2. Metrics calculation
       const completedTasks = tasks?.filter(t => t.status === 'done').length || 0
       const activeTasks = tasks?.filter(t => t.status !== 'done').length || 0
       const velocity = Math.round((completedTasks / (tasks?.length || 1)) * 100) || 0
       const health = Math.round((projects?.filter(p => p.status !== 'Delayed').length / (projects?.length || 1)) * 100) || 0
 
-      // 3. Realistic throughput calculation (tasks created per day in last 12 days)
       const throughput = Array.from({ length: 12 }, (_, i) => {
         const d = new Date()
         d.setDate(d.getDate() - (11 - i))
         const count = tasks?.filter(t => new Date(t.created_at).toDateString() === d.toDateString()).length || 0
-        return Math.min(100, 20 + (count * 15) + (Math.random() * 10)) // Base + real data
+        return Math.min(100, 20 + (count * 15) + (Math.random() * 10))
       })
 
       const metrics = [
@@ -67,20 +62,7 @@ export default function Dashboard({ setCurrentView }) {
         color: t.id === 't1' ? 'bg-blue-500' : 'bg-violet-500'
       })) || []
 
-      const agenda = tasks?.filter(t => t.due_date).slice(0, 3).map(t => ({
-        title: t.title,
-        time: t.due_date.slice(-5)
-      })) || []
-
-      setData({
-        metrics,
-        activities: activities || [],
-        projects: projects || [],
-        agenda,
-        workload,
-        throughput,
-        config
-      })
+      setData({ metrics, activities: activities || [], projects: projects || [], workload, throughput, config })
     } catch (err) {
       console.error('Core Sync Failure:', err)
     } finally {
@@ -99,7 +81,7 @@ export default function Dashboard({ setCurrentView }) {
   }, [fetchDashboardData])
 
   const deleteProject = async (id) => {
-    if (!confirm('ARCHIVE NODE: Confirm final dissolution?')) return
+    if (!confirm('Dissolve this infrastructure node?')) return
     await supabase.from('projects').delete().eq('id', id)
     fetchDashboardData()
   }
@@ -108,102 +90,97 @@ export default function Dashboard({ setCurrentView }) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-        <span className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">Resolving Infrastructure Nodes...</span>
+        <span className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">Resolving Cluster...</span>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8 pb-12">
-      {/* HEADER: Dynamic Workspace Name */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 animate-in">
+    <div className="space-y-6 sm:space-y-8 pb-12">
+      {/* HEADER */}
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold text-blue-500 uppercase tracking-[0.2em]">{data.config.workspace_name || 'ProSpace Alpha'}</span>
+            <span className="text-[10px] sm:text-[11px] font-bold text-blue-500 uppercase tracking-[0.2em]">{data.config.workspace_name || 'ProSpace'}</span>
             <div className="w-1 h-1 rounded-full bg-blue-500/40"></div>
-            <p className="text-[11px] text-white/30 font-bold uppercase tracking-widest">{new Date().toLocaleDateString()}</p>
+            <p className="text-[10px] sm:text-[11px] text-white/30 font-bold uppercase tracking-widest">{new Date().toLocaleDateString()}</p>
           </div>
-          <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Executive Control</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Executive Control</h1>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <button onClick={() => fetchDashboardData()} className={`w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-white/40 hover:text-white transition-colors`}>
-            <Bell className="w-5 h-5" />
-          </button>
-          <button className="btn-primary" onClick={() => setCurrentView('projects')}>
-            <Plus className="w-4 h-4" />
-            New Project
-          </button>
-        </div>
+        <button className="btn-primary self-start sm:self-auto text-[12px] sm:text-[13px]" onClick={() => setCurrentView('projects')}>
+          <Plus className="w-4 h-4" />
+          New Project
+        </button>
       </header>
 
-      {/* AI STRATEGY: Dynamic Recommendation */}
+      {/* AI STRATEGY */}
       <section className="animate-in">
-        <div className="bg-gradient-to-r from-blue-600/10 via-violet-600/10 to-transparent border border-blue-500/10 rounded-2xl p-4 flex flex-col md:flex-row items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
-            <Sparkles className="w-5 h-5 text-white" />
+        <div className="bg-gradient-to-r from-blue-600/10 via-violet-600/10 to-transparent border border-blue-500/10 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
-          <div className="flex-1 text-center md:text-left">
-            <p className="text-[14px] font-bold text-white/90">AI Strategy: <span className="text-white/40">{data.config.ai_recommendation || 'Analyzing cluster deployment...'}</span></p>
+          <div className="flex-1">
+            <p className="text-[12px] sm:text-[14px] font-bold text-white/90">AI Strategy: <span className="text-white/40">{data.config.ai_recommendation || 'Analyzing...'}</span></p>
           </div>
-          <button className="text-[11px] font-black text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-[0.2em] flex items-center gap-2 group">
-            Rescan Infrastructure <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          <button className="text-[10px] sm:text-[11px] font-black text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-[0.15em] flex items-center gap-1.5 group shrink-0">
+            Rescan <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
       </section>
 
       {/* METRICS */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in">
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 animate-in">
         {data.metrics.map((m, idx) => (
-          <div key={idx} className="glass-card p-7 group hover:border-white/10 transition-all cursor-pointer">
-            <div className="flex justify-between items-start mb-6">
-              <div className={`w-9 h-9 rounded-xl ${m.bgColor} flex items-center justify-center`}>
-                <m.icon className={`w-4 h-4 ${m.color}`} />
+          <div key={idx} className="glass-card p-4 sm:p-7 group hover:border-white/10 transition-all cursor-pointer">
+            <div className="flex justify-between items-start mb-4 sm:mb-6">
+              <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl ${m.bgColor} flex items-center justify-center`}>
+                <m.icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${m.color}`} />
               </div>
-              <ArrowUpRight className="w-4 h-4 text-white/5 opacity-0 group-hover:opacity-100 transition-all" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-white/5 opacity-0 group-hover:opacity-100 transition-all hidden sm:block" />
             </div>
-            <div className="flex items-baseline gap-1.5 mb-1 text-white">
-              <span className="text-2xl font-black tabular-nums">{m.value}</span>
-              <span className="text-white/20 text-[12px] font-black">{m.unit}</span>
+            <div className="flex items-baseline gap-1 mb-0.5">
+              <span className="text-xl sm:text-2xl font-black tabular-nums">{m.value}</span>
+              <span className="text-white/20 text-[10px] sm:text-[12px] font-black">{m.unit}</span>
             </div>
-            <p className="text-[10px] text-white/20 font-black uppercase tracking-[0.2em] mt-3">{m.label}</p>
+            <p className="text-[8px] sm:text-[10px] text-white/20 font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] mt-2 sm:mt-3">{m.label}</p>
           </div>
         ))}
       </section>
 
       {/* CENTER GRID */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-4 animate-in">
-        <div className="lg:col-span-8 glass-card p-10 bg-gradient-to-br from-white/[0.01] to-transparent">
-          <div className="flex justify-between items-center mb-10">
-            <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-white/20">Deployment Hub</h2>
-            <button onClick={() => setCurrentView('projects')} className="text-[10px] font-bold text-blue-400 uppercase tracking-widest hover:text-white transition-colors">Portfolio Status →</button>
+        {/* Projects List */}
+        <div className="lg:col-span-8 glass-card p-5 sm:p-8 lg:p-10">
+          <div className="flex justify-between items-center mb-6 sm:mb-10">
+            <h2 className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-white/20">Deployment Hub</h2>
+            <button onClick={() => setCurrentView('projects')} className="text-[9px] sm:text-[10px] font-bold text-blue-400 uppercase tracking-widest hover:text-white transition-colors">Portfolio →</button>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {data.projects.length === 0 ? (
-              <p className="text-[11px] text-white/10 font-bold uppercase tracking-widest text-center py-20">No active deployments</p>
+              <p className="text-[11px] text-white/10 font-bold uppercase tracking-widest text-center py-12 sm:py-20">No active deployments</p>
             ) : data.projects.map(p => (
-              <div key={p.id} className="flex items-center justify-between group p-6 rounded-2xl bg-white/[0.01] border border-white/[0.04] hover:bg-white/[0.04] hover:border-white/10 transition-all">
-                <div className="flex items-center gap-5">
-                  <div className="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
-                    <Kanban className="w-5.5 h-5.5" />
+              <div key={p.id} className="flex items-center justify-between group p-3 sm:p-6 rounded-xl sm:rounded-2xl bg-white/[0.01] border border-white/[0.04] hover:bg-white/[0.04] hover:border-white/10 transition-all">
+                <div className="flex items-center gap-3 sm:gap-5 min-w-0">
+                  <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0">
+                    <Kanban className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
-                  <div>
-                    <h4 className="text-[15px] font-bold text-white/90">{p.name}</h4>
-                    <div className="flex items-center gap-2 mt-1.5">
-                       <div className="w-32 bg-white/5 h-1.5 rounded-full overflow-hidden">
+                  <div className="min-w-0">
+                    <h4 className="text-[13px] sm:text-[15px] font-bold text-white/90 truncate">{p.name}</h4>
+                    <div className="flex items-center gap-2 mt-1">
+                       <div className="w-16 sm:w-32 bg-white/5 h-1.5 rounded-full overflow-hidden">
                         <div className="bg-blue-500 h-full transition-all duration-1000" style={{ width: `${p.progress}%` }}></div>
                        </div>
-                       <span className="text-[10px] font-bold text-white/20 tabular-nums">{p.progress}% SYNC</span>
+                       <span className="text-[9px] sm:text-[10px] font-bold text-white/20 tabular-nums">{p.progress}%</span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                   <button onClick={() => deleteProject(p.id)} className="p-3 rounded-xl bg-rose-500/5 text-rose-500/20 hover:text-rose-400 hover:bg-rose-500/10 opacity-0 group-hover:opacity-100 transition-all">
-                    <Trash2 className="w-4.5 h-4.5" />
+                <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 ml-2">
+                   <button onClick={() => deleteProject(p.id)} className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-rose-500/5 text-rose-500/20 hover:text-rose-400 hover:bg-rose-500/10 opacity-0 group-hover:opacity-100 transition-all">
+                    <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                    </button>
-                   <button onClick={() => setCurrentView('projects')} className="p-3 rounded-xl bg-white/5 text-white/10 hover:text-white hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-all shadow-xl">
-                    <ArrowUpRight className="w-4.5 h-4.5" />
+                   <button onClick={() => setCurrentView('projects')} className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-white/5 text-white/10 hover:text-white hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-all">
+                    <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                    </button>
                 </div>
               </div>
@@ -211,27 +188,28 @@ export default function Dashboard({ setCurrentView }) {
           </div>
         </div>
 
-        <div className="lg:col-span-4 glass-card p-8">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-white/20">Omni-Log</h2>
-            <div className="text-[9px] text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full font-black uppercase tracking-widest flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span> Secured
+        {/* Activity Feed */}
+        <div className="lg:col-span-4 glass-card p-5 sm:p-8">
+          <div className="flex justify-between items-center mb-5 sm:mb-8">
+            <h2 className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-white/20">Omni-Log</h2>
+            <div className="text-[8px] sm:text-[9px] text-blue-400 bg-blue-500/10 px-2 sm:px-3 py-1 rounded-full font-black uppercase tracking-widest flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span> Live
             </div>
           </div>
           
-          <div className="space-y-5">
+          <div className="space-y-3 sm:space-y-5">
             {data.activities.length === 0 ? (
-              <p className="text-[11px] text-white/10 font-bold uppercase tracking-widest text-center py-20">Scanning cluster...</p>
-            ) : data.activities.map((a, i) => (
-              <div key={a.id} className="flex gap-4 items-start group p-2 -m-2 rounded-xl hover:bg-white/[0.02] transition-colors relative">
-                <div className="w-9 h-9 rounded-full bg-blue-500/5 flex items-center justify-center text-blue-400 shrink-0">
-                  <Activity className="w-4 h-4" />
+              <p className="text-[11px] text-white/10 font-bold uppercase tracking-widest text-center py-12 sm:py-20">Awaiting data...</p>
+            ) : data.activities.map((a) => (
+              <div key={a.id} className="flex gap-3 sm:gap-4 items-start group">
+                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-blue-500/5 flex items-center justify-center text-blue-400 shrink-0">
+                  <Activity className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] text-white/60 leading-tight">
-                    <span className="text-white font-bold">{a.user_name}</span> {a.action} <span className="text-white/30">{a.target}</span>
+                  <p className="text-[11px] sm:text-[13px] text-white/60 leading-tight">
+                    <span className="text-white font-bold">{a.user_name}</span> {a.action} <span className="text-white/30 break-all">{a.target}</span>
                   </p>
-                  <span className="text-[10px] text-white/10 font-black uppercase tracking-widest mt-0.5 block">{new Date(a.created_at).toLocaleTimeString()}</span>
+                  <span className="text-[8px] sm:text-[10px] text-white/10 font-black uppercase tracking-widest mt-0.5 block">{new Date(a.created_at).toLocaleTimeString()}</span>
                 </div>
               </div>
             ))}
@@ -239,18 +217,18 @@ export default function Dashboard({ setCurrentView }) {
         </div>
       </section>
 
-      {/* FOOTER: Realistic Throughput Metrics */}
+      {/* FOOTER GRID */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 animate-in">
-        <div className="glass-card p-8 text-center sm:text-left">
-          <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-white/20 mb-10">Cluster Performance</h2>
-          <div className="space-y-8">
+        <div className="glass-card p-5 sm:p-8">
+          <h2 className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-white/20 mb-6 sm:mb-10">Cluster Load</h2>
+          <div className="space-y-5 sm:space-y-8">
             {data.workload.map((w, i) => (
               <div key={i}>
-                <div className="flex justify-between text-[11px] font-black mb-3 text-white/40 uppercase tracking-widest">
-                  <span>{w.label}</span>
-                  <span className="tabular-nums">{w.val}%</span>
+                <div className="flex justify-between text-[10px] sm:text-[11px] font-black mb-2 sm:mb-3 text-white/40 uppercase tracking-widest">
+                  <span className="truncate mr-2">{w.label}</span>
+                  <span className="tabular-nums shrink-0">{w.val}%</span>
                 </div>
-                <div className="w-full bg-white/[0.04] h-2 rounded-full overflow-hidden p-[1px]">
+                <div className="w-full bg-white/[0.04] h-1.5 sm:h-2 rounded-full overflow-hidden p-[1px]">
                   <div className={`h-full rounded-full transition-all duration-1000 ${w.color}`} style={{ width: `${w.val}%` }}></div>
                 </div>
               </div>
@@ -258,16 +236,16 @@ export default function Dashboard({ setCurrentView }) {
           </div>
         </div>
 
-        <div className="glass-card p-10 lg:col-span-2">
-          <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-white/20 mb-10">Throughput Velocity</h2>
-          <div className="flex items-end justify-between gap-1.5 h-36">
+        <div className="glass-card p-5 sm:p-10 lg:col-span-2">
+          <h2 className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-white/20 mb-6 sm:mb-10">Throughput</h2>
+          <div className="flex items-end justify-between gap-1 sm:gap-1.5 h-24 sm:h-36">
             {data.throughput.map((h, i) => (
               <div key={i} className="flex-1 bg-gradient-to-t from-blue-500/5 to-blue-500/40 rounded-t-[2px] hover:from-blue-400 hover:to-blue-600 transition-all cursor-pointer group relative" style={{ height: `${h}%` }}>
-                 <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all z-50 shadow-xl">{Math.round(h)}%</div>
+                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-black text-[9px] font-black px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-all z-50 hidden sm:block">{Math.round(h)}%</div>
               </div>
             ))}
           </div>
-          <p className="text-[9px] text-white/10 font-black uppercase tracking-[0.5em] text-center mt-8">Real-time data aggregation across last 12 units</p>
+          <p className="text-[8px] sm:text-[9px] text-white/10 font-black uppercase tracking-[0.3em] sm:tracking-[0.5em] text-center mt-4 sm:mt-8">Real-time data · last 12 units</p>
         </div>
       </section>
     </div>

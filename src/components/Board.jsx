@@ -115,37 +115,35 @@ export default function Board({ projectId, onBack }) {
   )
 
   return (
-    <div className="space-y-8 animate-in pb-20">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-center gap-6">
+    <div className="space-y-6 sm:space-y-8 animate-in pb-20">
+      <header className="flex flex-col gap-4 sm:gap-6">
+        <div className="flex items-center gap-4 sm:gap-6">
           <button
             onClick={onBack}
-            className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-white/20 hover:text-white transition-all active:scale-90"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-white/20 hover:text-white transition-all active:scale-90 shrink-0"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">{projectName} Cluster</span>
-              <div className="w-1 h-1 rounded-full bg-white/20"></div>
-              <span className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">Board Engine v2.0</span>
+              <span className="text-[10px] sm:text-[11px] font-bold text-white/20 uppercase tracking-[0.15em] sm:tracking-[0.2em] truncate">{projectName}</span>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight">Active Sprints</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Active Sprints</h1>
           </div>
         </div>
-        <div className="flex gap-3">
-          <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-white/50 transition-colors" />
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative group flex-1 sm:flex-none">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
             <input
               type="text"
               placeholder="Search sprint..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-white/[0.03] border border-white/[0.06] rounded-xl py-2.5 pl-9 pr-4 text-[13px] focus:outline-none focus:border-white/15 w-48 transition-all"
+              className="bg-white/[0.03] border border-white/[0.06] rounded-xl py-2.5 pl-9 pr-4 text-[13px] focus:outline-none focus:border-white/15 w-full sm:w-48 transition-all"
             />
           </div>
           <button
-            className="btn-primary"
+            className="btn-primary text-[12px] sm:text-[13px] self-start"
             onClick={() => setIsTaskModalOpen(true)}
           >
             <Plus className="w-4 h-4" />
@@ -154,7 +152,8 @@ export default function Board({ projectId, onBack }) {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+      <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="grid grid-cols-4 gap-4 sm:gap-6 items-start min-w-[900px] sm:min-w-0">
         {columns.map((col) => {
           const columnTasks = filteredTasks.filter(t => t.status === col.id)
           return (
@@ -241,11 +240,12 @@ export default function Board({ projectId, onBack }) {
           )
         })}
       </div>
+      </div>
 
       {isTaskModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6">
           <div className="absolute inset-0 bg-black/85 backdrop-blur-xl" onClick={() => setIsTaskModalOpen(false)}></div>
-          <div className="glass-card w-full max-w-xl p-12 relative z-10 animate-fade-in-up border-white/10 shadow-2xl overflow-hidden">
+          <div className="glass-card w-full max-w-xl p-5 sm:p-12 relative z-10 animate-fade-in-up border-white/10 shadow-2xl overflow-hidden mx-2">
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl rounded-full translate-x-16 -translate-y-16"></div>
 
             <div className="flex justify-between items-center mb-10">
@@ -275,7 +275,7 @@ export default function Board({ projectId, onBack }) {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-3 block flex items-center gap-2">
                     <Users className="w-3 h-3" /> Assigned Team
@@ -306,7 +306,7 @@ export default function Board({ projectId, onBack }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-3 block flex items-center gap-2">
                     <Target className="w-3 h-3" /> Story Points
