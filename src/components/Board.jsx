@@ -41,6 +41,11 @@ export default function Board({ projectId, onBack }) {
 
   useEffect(() => {
     fetchData()
+    // Realtime subscription for instant progress + activity updates
+    const sub = supabase.channel(`board-${projectId}`)
+      .on('postgres_changes', { event: '*', table: 'tasks', filter: `project_id=eq.${projectId}` }, fetchData)
+      .subscribe()
+    return () => { supabase.removeChannel(sub) }
   }, [fetchData])
 
   useEffect(() => {
@@ -74,6 +79,8 @@ export default function Board({ projectId, onBack }) {
       setIsTaskModalOpen(false)
       setNewTask({ title: '', status: 'todo', team_id: '', priority: 'medium', estimate: 3, due_date: new Date().toISOString().split('T')[0] })
       fetchData()
+    } else {
+      alert('Failed to deploy task: ' + error.message)
     }
   }
 
@@ -82,10 +89,12 @@ export default function Board({ projectId, onBack }) {
     if (!error) fetchData()
   }
 
-  const deleteTask = async (taskId) => {
+  const deleteTask = async (e, taskId) => {
+    if (e) { e.stopPropagation(); e.preventDefault(); }
     if (!confirm('Permanently remove this task?')) return
     const { error } = await supabase.from('tasks').delete().eq('id', taskId)
     if (!error) fetchData()
+    else alert('Delete failed: ' + error.message)
   }
 
   const priorityColor = (p) => {
@@ -184,8 +193,8 @@ export default function Board({ projectId, onBack }) {
                           </span>
                         )}
                       </div>
-                      <button onClick={() => deleteTask(task.id)} className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-white/5 rounded-lg">
-                        <X className="w-4 h-4 text-white/10 hover:text-rose-400" />
+                      <button onClick={(e) => deleteTask(e, task.id)} className="opacity-0 group-hover:opacity-100 transition-all p-2 hover:bg-rose-500/10 hover:text-rose-400 rounded-lg z-30">
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
 

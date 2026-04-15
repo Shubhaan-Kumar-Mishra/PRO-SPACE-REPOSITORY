@@ -35,7 +35,7 @@ export default function Projects({ onProjectSelect }) {
 
     if (!error) {
       setIsModalOpen(false)
-      setNewProject({ name: '', team_id: '', status: 'In Progress' })
+      setNewProject({ name: '', team_id: '', status: 'Active' })
       refresh()
     } else {
       alert('Failed to create project: ' + error.message)
