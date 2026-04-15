@@ -8,6 +8,31 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState({ email: '', password: '' })
+
+  const MAX_LENGTH = 30
+
+  const handleEmailChange = (val) => {
+    setEmail(val)
+    if (val.length > MAX_LENGTH) {
+      setErrors(prev => ({ ...prev, email: `Email must be ${MAX_LENGTH} characters or fewer` }))
+    } else {
+      setErrors(prev => ({ ...prev, email: '' }))
+    }
+  }
+
+  const handlePasswordChange = (val) => {
+    setPassword(val)
+    if (val.length > MAX_LENGTH) {
+      setErrors(prev => ({ ...prev, password: `Password must be ${MAX_LENGTH} characters or fewer` }))
+    } else if (val.length > 0 && val.length < 6) {
+      setErrors(prev => ({ ...prev, password: 'Password must be at least 6 characters' }))
+    } else {
+      setErrors(prev => ({ ...prev, password: '' }))
+    }
+  }
+
+  const isValid = email.length <= MAX_LENGTH && password.length <= MAX_LENGTH && password.length >= 6 && email.length > 0
 
   useEffect(() => {
     anime({
@@ -92,39 +117,49 @@ export default function Login() {
 
         <form onSubmit={handleAuth} className="space-y-4">
           <div>
-            <label className="text-[11px] font-semibold text-white/25 uppercase tracking-[0.15em] mb-2 block">Email</label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="text-[11px] font-semibold text-white/25 uppercase tracking-[0.15em]">Email</label>
+              <span className={`text-[10px] font-bold tabular-nums transition-colors ${email.length > MAX_LENGTH ? 'text-rose-400' : 'text-white/10'}`}>{email.length}/{MAX_LENGTH}</span>
+            </div>
             <div className="relative group">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/15 group-focus-within:text-white/40 transition-colors" />
               <input 
                 type="email"
                 placeholder="you@company.com"
-                className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl py-3.5 pl-11 pr-4 text-[14px] focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all placeholder:text-white/15"
+                maxLength={MAX_LENGTH + 5}
+                className={`w-full bg-white/[0.04] border rounded-xl py-3.5 pl-11 pr-4 text-[14px] focus:outline-none focus:bg-white/[0.06] transition-all placeholder:text-white/15 ${errors.email ? 'border-rose-500/40 focus:border-rose-500/60' : 'border-white/[0.06] focus:border-white/20'}`}
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => handleEmailChange(e.target.value)}
                 required
               />
             </div>
+            {errors.email && <p className="text-[11px] text-rose-400 mt-1.5 font-medium">{errors.email}</p>}
           </div>
 
           <div>
-            <label className="text-[11px] font-semibold text-white/25 uppercase tracking-[0.15em] mb-2 block">Password</label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="text-[11px] font-semibold text-white/25 uppercase tracking-[0.15em]">Password</label>
+              <span className={`text-[10px] font-bold tabular-nums transition-colors ${password.length > MAX_LENGTH ? 'text-rose-400' : 'text-white/10'}`}>{password.length}/{MAX_LENGTH}</span>
+            </div>
             <div className="relative group">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/15 group-focus-within:text-white/40 transition-colors" />
               <input 
                 type="password"
                 placeholder="••••••••"
-                className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl py-3.5 pl-11 pr-4 text-[14px] focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all placeholder:text-white/15"
+                maxLength={MAX_LENGTH + 5}
+                className={`w-full bg-white/[0.04] border rounded-xl py-3.5 pl-11 pr-4 text-[14px] focus:outline-none focus:bg-white/[0.06] transition-all placeholder:text-white/15 ${errors.password ? 'border-rose-500/40 focus:border-rose-500/60' : 'border-white/[0.06] focus:border-white/20'}`}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => handlePasswordChange(e.target.value)}
                 required
               />
             </div>
+            {errors.password && <p className="text-[11px] text-rose-400 mt-1.5 font-medium">{errors.password}</p>}
           </div>
 
           <button 
             type="submit"
-            disabled={loading}
-            className="w-full bg-white text-[#0a0a0a] hover:bg-white/90 font-semibold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 group mt-6 active:scale-[0.98]"
+            disabled={loading || !isValid}
+            className={`w-full font-semibold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 group mt-6 active:scale-[0.98] ${isValid ? 'bg-white text-[#0a0a0a] hover:bg-white/90' : 'bg-white/10 text-white/20 cursor-not-allowed'}`}
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
