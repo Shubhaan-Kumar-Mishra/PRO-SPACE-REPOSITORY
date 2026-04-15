@@ -23,19 +23,50 @@ export default function Login() {
     e.preventDefault()
     setLoading(true)
     
-    const { error } = isSignup 
-      ? await supabase.auth.signUp({ email, password })
-      : await supabase.auth.signInWithPassword({ email, password })
-      
-    if (error) {
-      if (error.message.includes('fetch')) {
-        alert('CONFIGURATION ERROR: The system cannot reach the backend cluster. Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are correctly set in the Cloudflare Dashboard and that you have redeployed.')
+    try {
+      if (isSignup) {
+        // Step 1: Create the account
+        const { error: signUpError } = await supabase.auth.signUp({ email, password })
+        
+        if (signUpError) {
+          if (signUpError.message.includes('fetch')) {
+            alert('CONNECTION ERROR: Cannot reach the authentication server. Verify your Supabase configuration.')
+          } else {
+            alert(signUpError.message)
+          }
+          setLoading(false)
+          return
+        }
+
+        // Step 2: Immediately attempt auto-login
+        const { error: loginError } = await supabase.auth.signInWithPassword({ email, password })
+        
+        if (loginError) {
+          // Email confirmation is likely enabled — user must verify first
+          alert('Account created! Please check your email inbox to confirm your account, then sign in.')
+          setIsSignup(false) // Switch to sign-in view
+        }
+        // If no loginError, onAuthStateChange fires automatically → redirect to dashboard
+        
       } else {
-        alert(error.message)
+        // Standard sign-in
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) {
+          if (error.message.includes('fetch')) {
+            alert('CONNECTION ERROR: Cannot reach the authentication server. Verify your Supabase configuration.')
+          } else if (error.message.includes('Invalid login')) {
+            alert('Invalid credentials. Please check your email and password.')
+          } else if (error.message.includes('Email not confirmed')) {
+            alert('Your email has not been confirmed yet. Please check your inbox.')
+          } else {
+            alert(error.message)
+          }
+        }
       }
-    } else if (isSignup) {
-      alert('SUCCESS: Account initiated. If you haven\'t disabled "Email Confirmation" in Supabase settings, please check your inbox to activate your node.')
+    } catch (err) {
+      alert('Unexpected error: ' + err.message)
     }
+    
     setLoading(false)
   }
 
