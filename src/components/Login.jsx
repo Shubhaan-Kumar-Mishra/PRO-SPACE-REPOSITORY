@@ -46,6 +46,21 @@ export default function Login() {
 
   const handleAuth = async (e) => {
     e.preventDefault()
+
+    // HARD VALIDATION GATE — blocks before ANY API call
+    if (email.length > MAX_LENGTH) {
+      setErrors(prev => ({ ...prev, email: `Email must be ${MAX_LENGTH} characters or fewer` }))
+      return
+    }
+    if (password.length > MAX_LENGTH) {
+      setErrors(prev => ({ ...prev, password: `Password must be ${MAX_LENGTH} characters or fewer` }))
+      return
+    }
+    if (password.length < 6) {
+      setErrors(prev => ({ ...prev, password: 'Password must be at least 6 characters' }))
+      return
+    }
+
     setLoading(true)
     
     try {
@@ -126,7 +141,7 @@ export default function Login() {
               <input 
                 type="email"
                 placeholder="you@company.com"
-                maxLength={MAX_LENGTH + 5}
+                maxLength={MAX_LENGTH}
                 className={`w-full bg-white/[0.04] border rounded-xl py-3.5 pl-11 pr-4 text-[14px] focus:outline-none focus:bg-white/[0.06] transition-all placeholder:text-white/15 ${errors.email ? 'border-rose-500/40 focus:border-rose-500/60' : 'border-white/[0.06] focus:border-white/20'}`}
                 value={email}
                 onChange={(e) => handleEmailChange(e.target.value)}
@@ -146,7 +161,7 @@ export default function Login() {
               <input 
                 type="password"
                 placeholder="••••••••"
-                maxLength={MAX_LENGTH + 5}
+                maxLength={MAX_LENGTH}
                 className={`w-full bg-white/[0.04] border rounded-xl py-3.5 pl-11 pr-4 text-[14px] focus:outline-none focus:bg-white/[0.06] transition-all placeholder:text-white/15 ${errors.password ? 'border-rose-500/40 focus:border-rose-500/60' : 'border-white/[0.06] focus:border-white/20'}`}
                 value={password}
                 onChange={(e) => handlePasswordChange(e.target.value)}
