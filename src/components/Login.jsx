@@ -28,9 +28,13 @@ export default function Login() {
       : await supabase.auth.signInWithPassword({ email, password })
       
     if (error) {
-      alert(error.message)
+      if (error.message.includes('fetch')) {
+        alert('CONFIGURATION ERROR: The system cannot reach the backend cluster. Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are correctly set in the Cloudflare Dashboard and that you have redeployed.')
+      } else {
+        alert(error.message)
+      }
     } else if (isSignup) {
-      alert('Account created! Check your email to confirm.')
+      alert('SUCCESS: Account initiated. If you haven\'t disabled "Email Confirmation" in Supabase settings, please check your inbox to activate your node.')
     }
     setLoading(false)
   }
