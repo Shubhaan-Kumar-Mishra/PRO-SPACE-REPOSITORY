@@ -70,6 +70,7 @@ export default function Board({ projectId, onBack }) {
 
   const handleAddTask = async (e) => {
     e.preventDefault()
+    if (newTask.title.length > 30) { alert('Task title must be 30 characters or fewer'); return }
     const { error } = await supabase.from('tasks').insert({
       id: 'task-' + Math.random().toString(36).substr(2, 9),
       project_id: projectId,
@@ -263,10 +264,14 @@ export default function Board({ projectId, onBack }) {
 
             <form onSubmit={handleAddTask} className="space-y-8">
               <div>
-                <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-3 block">Task Brief</label>
+                <div className="flex justify-between items-center mb-3">
+                  <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">Task Brief</label>
+                  <span className={`text-[10px] font-bold tabular-nums ${newTask.title.length > 30 ? 'text-rose-400' : 'text-white/10'}`}>{newTask.title.length}/30</span>
+                </div>
                 <input
                   type="text"
-                  className="w-full bg-white/[0.03] border border-white/[0.1] rounded-2xl py-5 px-6 text-[15px] font-bold focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-white/10"
+                  maxLength={30}
+                  className={`w-full bg-white/[0.03] border rounded-2xl py-5 px-6 text-[15px] font-bold focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-white/10 ${newTask.title.length > 30 ? 'border-rose-500/40' : 'border-white/[0.1]'}`}
                   placeholder="Define the primary objective..."
                   value={newTask.title}
                   onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}

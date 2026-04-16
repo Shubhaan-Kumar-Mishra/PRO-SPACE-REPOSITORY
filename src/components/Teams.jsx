@@ -33,6 +33,7 @@ export default function Teams() {
 
   const handleAddTeam = async (e) => {
     e.preventDefault()
+    if (newTeam.name.length > 30) { alert('Team name must be 30 characters or fewer'); return }
     const { error } = await supabaseInsert('teams', {
       id: 't' + Math.random().toString(36).substr(2, 8),
       ...newTeam,
@@ -63,6 +64,9 @@ export default function Teams() {
   const handleAddMember = async (e) => {
     e.preventDefault()
     const fd = new FormData(e.target)
+    if (fd.get('first').length > 30) { alert('First name must be 30 characters or fewer'); return }
+    if (fd.get('last').length > 30) { alert('Last name must be 30 characters or fewer'); return }
+    if (fd.get('email').length > 30) { alert('Email must be 30 characters or fewer'); return }
     const { error } = await supabaseInsert('members', {
       id: 'm' + Math.random().toString(36).substr(2, 8),
       first_name: fd.get('first'),
@@ -218,8 +222,11 @@ export default function Teams() {
             <h2 className="text-xl font-bold tracking-tight mb-8">Establish Team</h2>
             <form onSubmit={handleAddTeam} className="space-y-6">
               <div>
-                <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-2.5 block">Nomenclature</label>
-                <input type="text" className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all" placeholder="e.g. Core Systems" value={newTeam.name} onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })} required autoFocus />
+                <div className="flex justify-between items-center mb-2.5">
+                  <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">Nomenclature</label>
+                  <span className={`text-[10px] font-bold tabular-nums ${newTeam.name.length > 30 ? 'text-rose-400' : 'text-white/10'}`}>{newTeam.name.length}/30</span>
+                </div>
+                <input type="text" maxLength={30} className={`w-full bg-white/[0.03] border rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all ${newTeam.name.length > 30 ? 'border-rose-500/40' : 'border-white/[0.08]'}`} placeholder="e.g. Core Systems" value={newTeam.name} onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })} required autoFocus />
               </div>
               <div>
                 <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-2.5 block">Briefing</label>
@@ -244,16 +251,16 @@ export default function Teams() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-2.5 block">First</label>
-                  <input name="first" type="text" className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all" required />
+                  <input name="first" type="text" maxLength={30} className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all" required />
                 </div>
                 <div>
                   <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-2.5 block">Last</label>
-                  <input name="last" type="text" className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all" required />
+                  <input name="last" type="text" maxLength={30} className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all" required />
                 </div>
               </div>
               <div>
                 <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-2.5 block">Comms Address</label>
-                <input name="email" type="email" className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all" placeholder="user@domain.com" required />
+                <input name="email" type="email" maxLength={30} className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all" placeholder="user@domain.com" required />
               </div>
               <div>
                 <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-2.5 block">Deployment Node</label>

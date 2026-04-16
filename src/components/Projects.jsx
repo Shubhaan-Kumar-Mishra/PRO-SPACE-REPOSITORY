@@ -26,6 +26,7 @@ export default function Projects({ onProjectSelect }) {
 
   const handleAddProject = async (e) => {
     e.preventDefault()
+    if (newProject.name.length > 30) { alert('Project name must be 30 characters or fewer'); return }
     const { error } = await supabaseInsert('projects', {
       id: 'p' + Math.random().toString(36).substr(2, 8),
       ...newProject,
@@ -170,10 +171,14 @@ export default function Projects({ onProjectSelect }) {
             </div>
             <form onSubmit={handleAddProject} className="space-y-4">
               <div>
-                <label className="text-[11px] font-semibold text-white/25 uppercase tracking-[0.15em] mb-2 block">Identity</label>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-[11px] font-semibold text-white/25 uppercase tracking-[0.15em]">Identity</label>
+                  <span className={`text-[10px] font-bold tabular-nums ${newProject.name.length > 30 ? 'text-rose-400' : 'text-white/10'}`}>{newProject.name.length}/30</span>
+                </div>
                 <input
                   type="text"
-                  className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl py-3 px-4 text-[14px] focus:outline-none focus:border-white/20 transition-all"
+                  maxLength={30}
+                  className={`w-full bg-white/[0.04] border rounded-xl py-3 px-4 text-[14px] focus:outline-none transition-all ${newProject.name.length > 30 ? 'border-rose-500/40' : 'border-white/[0.06] focus:border-white/20'}`}
                   placeholder="e.g. Project Odyssey"
                   value={newProject.name}
                   onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
