@@ -216,25 +216,25 @@ export default function Teams() {
 
       {/* New Team Modal */}
       {isTeamModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] p-4 sm:p-6">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setIsTeamModalOpen(false)}></div>
-          <div className="glass-card w-full max-w-md p-10 relative z-10 border-white/10 shadow-2xl animate-fade-in-up">
+          <div className="glass-card w-full max-w-md p-6 sm:p-10 relative z-10 border-white/10 shadow-2xl animate-fade-in-up">
             <h2 className="text-xl font-bold tracking-tight mb-8">Establish Team</h2>
             <form onSubmit={handleAddTeam} className="space-y-6">
               <div>
                 <div className="flex justify-between items-center mb-2.5">
                   <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">Nomenclature</label>
-                  <span className={`text-[10px] font-bold tabular-nums ${newTeam.name.length > 30 ? 'text-rose-400' : 'text-white/10'}`}>{newTeam.name.length}/30</span>
+                  <span className={`text-[10px] font-bold tabular-nums ${newTeam.name.length >= 30 ? 'text-rose-400' : 'text-white/10'}`}>{newTeam.name.length}/30</span>
                 </div>
-                <input type="text" maxLength={30} className={`w-full bg-white/[0.03] border rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all ${newTeam.name.length > 30 ? 'border-rose-500/40' : 'border-white/[0.08]'}`} placeholder="e.g. Core Systems" value={newTeam.name} onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })} required autoFocus />
+                <input type="text" maxLength={30} className={`w-full bg-white/[0.03] border rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all ${newTeam.name.length >= 30 ? 'border-rose-500/40' : 'border-white/[0.08]'}`} placeholder="e.g. Core Systems" value={newTeam.name} onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })} required autoFocus />
               </div>
               <div>
                 <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-2.5 block">Briefing</label>
-                <textarea className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 h-32 resize-none transition-all" placeholder="Primary objectives..." value={newTeam.description} onChange={(e) => setNewTeam({ ...newTeam, description: e.target.value })} required />
+                <textarea maxLength={100} className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 h-24 resize-none transition-all" placeholder="Primary objectives..." value={newTeam.description} onChange={(e) => setNewTeam({ ...newTeam, description: e.target.value })} required />
               </div>
-              <div className="flex gap-4 mt-10 pt-6 border-t border-white/[0.04]">
-                <button type="button" className="flex-1 py-4 text-[12px] font-bold text-white/20 uppercase tracking-widest" onClick={() => setIsTeamModalOpen(false)}>Abort</button>
-                <button type="submit" className="btn-primary flex-1 justify-center py-4">Establish</button>
+              <div className="flex gap-4 pt-6 border-t border-white/[0.04]">
+                <button type="button" className="flex-1 py-3 text-[12px] font-bold text-white/20 uppercase tracking-widest" onClick={() => setIsTeamModalOpen(false)}>Abort</button>
+                <button type="submit" className="btn-primary flex-1 justify-center py-3">Establish</button>
               </div>
             </form>
           </div>
@@ -243,42 +243,52 @@ export default function Teams() {
 
       {/* Add Member Modal */}
       {isMemberModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] p-4 sm:p-6">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setIsMemberModalOpen(false)}></div>
-          <div className="glass-card w-full max-w-md p-10 relative z-10 border-white/10 shadow-2xl animate-fade-in-up">
-            <h2 className="text-xl font-bold tracking-tight mb-8">Enlist Member</h2>
-            <form onSubmit={handleAddMember} className="space-y-6">
+          <div className="glass-card w-full max-w-md p-6 sm:p-10 relative z-10 border-white/10 shadow-2xl animate-fade-in-up">
+            <h2 className="text-xl font-bold tracking-tight mb-6">Enlist Member</h2>
+            <form onSubmit={handleAddMember} className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-2.5 block">First</label>
-                  <input name="first" type="text" maxLength={30} className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all" required />
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">First</label>
+                    <span className="text-[9px] font-bold text-white/10 tabular-nums member-counter" data-field="first">0/30</span>
+                  </div>
+                  <input name="first" type="text" maxLength={30} onInput={(e) => { e.target.closest('div').querySelector('.member-counter').textContent = e.target.value.length + '/30'; if(e.target.value.length >= 30) e.target.closest('div').querySelector('.member-counter').style.color = '#fb7185'; else e.target.closest('div').querySelector('.member-counter').style.color = ''; }} className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-3.5 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all" required />
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-2.5 block">Last</label>
-                  <input name="last" type="text" maxLength={30} className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all" required />
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">Last</label>
+                    <span className="text-[9px] font-bold text-white/10 tabular-nums member-counter" data-field="last">0/30</span>
+                  </div>
+                  <input name="last" type="text" maxLength={30} onInput={(e) => { e.target.closest('div').querySelector('.member-counter').textContent = e.target.value.length + '/30'; if(e.target.value.length >= 30) e.target.closest('div').querySelector('.member-counter').style.color = '#fb7185'; else e.target.closest('div').querySelector('.member-counter').style.color = ''; }} className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-3.5 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all" required />
                 </div>
               </div>
               <div>
-                <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-2.5 block">Comms Address</label>
-                <input name="email" type="email" maxLength={30} className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all" placeholder="user@domain.com" required />
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">Comms Address</label>
+                  <span className="text-[9px] font-bold text-white/10 tabular-nums member-counter" data-field="email">0/30</span>
+                </div>
+                <input name="email" type="email" maxLength={30} onInput={(e) => { e.target.closest('div').querySelector('.member-counter').textContent = e.target.value.length + '/30'; if(e.target.value.length >= 30) e.target.closest('div').querySelector('.member-counter').style.color = '#fb7185'; else e.target.closest('div').querySelector('.member-counter').style.color = ''; }} className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-3.5 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 transition-all" placeholder="user@domain.com" required />
               </div>
               <div>
                 <label className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em] mb-2.5 block">Deployment Node</label>
-                <select name="team" className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-4 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 appearance-none transition-all" required>
+                <select name="team" className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-3.5 px-4 text-[14px] font-bold focus:outline-none focus:border-blue-500/50 appearance-none transition-all" required>
                   <option value="" disabled className="bg-[#141414]">Assign to cluster...</option>
                   {teams.map(t => (
                     <option key={t.id} value={t.id} className="bg-[#141414] font-bold">{t.name}</option>
                   ))}
                 </select>
               </div>
-              <div className="flex gap-4 mt-10 pt-6 border-t border-white/[0.04]">
-                <button type="button" className="flex-1 py-4 text-[12px] font-bold text-white/20 uppercase tracking-widest" onClick={() => setIsMemberModalOpen(false)}>Dismiss</button>
-                <button type="submit" className="btn-primary flex-1 justify-center py-4">Enlist</button>
+              <div className="flex gap-4 pt-5 border-t border-white/[0.04]">
+                <button type="button" className="flex-1 py-3 text-[12px] font-bold text-white/20 uppercase tracking-widest" onClick={() => setIsMemberModalOpen(false)}>Dismiss</button>
+                <button type="submit" className="btn-primary flex-1 justify-center py-3">Enlist</button>
               </div>
             </form>
           </div>
         </div>
       )}
+
     </div>
   )
 }
